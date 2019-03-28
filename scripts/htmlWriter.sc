@@ -8,6 +8,7 @@ import edu.holycross.shot.citeobj._
 import edu.holycross.shot.ohco2._
 import edu.holycross.shot.seqcomp._
 import edu.furman.classics.citealign._
+import java.util.Calendar
 
 val demoLib:String = "pope_iliad.cex"
 
@@ -16,7 +17,7 @@ def loadLibrary(fp:String = demoLib):CiteLibrary = {
 	library
 }
 
-def loadFile(fp:String = "../iliad_alignment/iliad_pope.txt"):Vector[String] = {
+def loadFile(fp:String = "pope_iliad.txt"):Vector[String] = {
 	Source.fromFile(fp).getLines.toVector
 }
 
@@ -97,16 +98,60 @@ val chunk25:Vector[Corpus] = {
 	corpChunks
 }
 
-// Chunked by Stanza, one way (wich will take forever):
-val stanzas:Vector[Corpus] = {
+// Chunked by Stanza, one way (which will take forever, 1347 seconds tested):
+lazy val stanzas:Vector[Corpus] = {
 	// get all URNs
 	val allUrns:Vector[CtsUrn] = popeCorpus.urns
 	// get only stanza-level URNs
 	val stanzaUrns:Vector[CtsUrn] = allUrns.map(_.collapsePassageBy(1)).distinct
 	// turn each stanza into a Corpus of verses from that stanza
 	val stanzaCorps:Vector[Corpus] = {
-		stanzaUrns.map(su => { popeCorpus ~~ su } )
+		stanzaUrns.map(su => { 
+			popeCorpus ~~ su 
+		})
 	}
 	// return that as a value
 	stanzaCorps
+}
+
+// Chunked by Stanza, another way ( < 1 second)
+lazy val stanzas2:Vector[Corpus] = {
+	// We need this, for this process only…
+	import scala.collection.mutable.LinkedHashMap
+	// we start with a Vector of CitableNodes from our corpus
+	val v1:Vector[CitableNode] = popeCorpus.nodes
+	// We zipWithIndex to capture their sequence	
+	val v2:Vector[(CitableNode, Int)] = v1.zipWithIndex
+	/* 
+		We want to group these by the urn-values, discarding
+		the right-hand element.
+
+		_._1 is a CitableNode
+		_._1.urn is the URN of the CitableNode
+		_._1.urn.collapsePassageBy(1) gives us the stanza-level
+	*/
+	val v3:Vector[(CtsUrn, Vector[(CitableNode, Int)])] = {
+		v2.groupBy( _._1.urn.collapsePassageBy(1) ).toVector
+	}
+	/*
+	The complicated bit. groupBy does not preserve sequence.
+	So we use the Int value
+		above: in Vector[CtsUrn, Vector[(CitableNode, Int)]]
+			or, when iterating,
+		_._2.head._2
+	to re-sort our groups
+	*/
+	//val v4 = LinkedHashMap(v3.toSeq.sortBy(_._2.head._2): _*)
+	val v4 = LinkedHashMap(v3.sortBy(_._2.head._2): _*)
+
+	// this removes the unnecessary index info
+	val v5 = v4.mapValues(_ map (_._1)).toVector
+
+	// turn Vector[Vector[CitableNodes]] into a Vector[Corpus]
+	val corpusVec:Vector[Corpus] = v5.map( v => {
+		val nodes:Vector[CitableNode] = v._2
+		Corpus(nodes)
+	})
+
+	corpusVec
 }

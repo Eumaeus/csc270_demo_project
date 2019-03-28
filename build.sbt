@@ -4,7 +4,7 @@ name := "hmtTwiddle"
 version := "0.0.1"
 
 // must be at least 2.11 to use hmt_textmodel
-scalaVersion := "2.12.4"
+scalaVersion := "2.12.7"
 
 run / connectInput := true
 
@@ -13,6 +13,8 @@ resolvers += Resolver.bintrayRepo("neelsmith","maven")
 resolvers += Resolver.bintrayRepo("eumaeus", "maven")
 
 connectInput in run := true
+
+cancelable in Global := true
 
 javaOptions in run ++= Seq(
     "-Xms256M",
