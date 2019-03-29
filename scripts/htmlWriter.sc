@@ -21,7 +21,7 @@ def loadFile(fp:String = "pope_iliad.txt"):Vector[String] = {
 	Source.fromFile(fp).getLines.toVector
 }
 
-def saveString(s:String, filePath:String = "texts/", fileName:String = "temp.txt"):Unit = {
+def saveString(s:String, filePath:String = "html/", fileName:String = "temp.txt"):Unit = {
 	val pw = new PrintWriter(new File(filePath + fileName))
 	for (line <- s.lines){
 		pw.append(line)
@@ -98,6 +98,26 @@ val chunk25:Vector[Corpus] = {
 	corpChunks
 }
 
+// Chunk-by-citation
+def chunkByCitation(c:Corpus, level:Int = 1):Vector[Corpus] = {
+	// We need this, for this process only…
+	import scala.collection.mutable.LinkedHashMap
+	// we start with a Vector of CitableNodes from our corpus
+	val v1:Vector[CitableNode] = c.nodes
+	// We zipWithIndex to capture their sequence	
+	val v2:Vector[(CitableNode, Int)] = v1.zipWithIndex
+	val v3:Vector[(CtsUrn, Vector[(CitableNode, Int)])] = {
+		v2.groupBy( _._1.urn.collapsePassageTo(level) ).toVector
+	}
+	val v4 = LinkedHashMap(v3.sortBy(_._2.head._2): _*)
+	val v5 = v4.mapValues(_ map (_._1)).toVector
+	val corpusVec:Vector[Corpus] = v5.map( v => {
+		val nodes:Vector[CitableNode] = v._2
+		Corpus(nodes)
+	})
+	corpusVec
+}
+
 // Chunked by Stanza, one way (which will take forever, 1347 seconds tested):
 lazy val stanzas:Vector[Corpus] = {
 	// get all URNs
@@ -154,4 +174,19 @@ lazy val stanzas2:Vector[Corpus] = {
 	})
 
 	corpusVec
+}
+
+// Write out each of 24 books
+
+def htmlTop:String = """<html><body>"""
+def htmlBottom:String = """</body></html>"""
+
+val bookChunks:Vector[Corpus] = chunkByCitation(popeCorpus, 1)
+
+for ( bk <- bookChunks.zipWithIndex) {
+	val bkNum:Int = bk._2 + 1
+	val c:Corpus = bk._1
+	val htmlName:String = s"book${bkNum}.html"
+	val textString:String = c.nodes.mkString("\n")
+	saveString(textString, "html/", htmlName)
 }
