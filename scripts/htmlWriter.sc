@@ -123,6 +123,6 @@ for ( bk <- bookChunks.zipWithIndex) {
 	val htmlString:String = {
 		htmlTop + containerOpen + passages.mkString("\n") + containerClose + htmlBottom
 	}
-
+	// Write out to a file
 	saveString(htmlString, "html/", htmlName)
 }
