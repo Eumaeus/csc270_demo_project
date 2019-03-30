@@ -1,0 +1,14 @@
+html {
+	margin-left: 5em;
+	margin-right: 10em;
+	margin-top: 2em;
+}
+
+p {
+	font-family: "Helvetica", sans-serif;
+}
+
+span.cite {
+	color: maroon;
+	padding-right: 2em;
+}
