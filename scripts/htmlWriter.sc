@@ -30,39 +30,6 @@ def saveString(s:String, filePath:String = "html/", fileName:String = "temp.txt"
 	pw.close
 }
 
-// Convert an Int to a Roman Numeral
-def toRoman(value: Int): String = {
-"M" * (value / 1000) +
-  ("", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM").productElement(value % 1000 / 100) +
-  ("", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC").productElement(value % 100 / 10) +
-  ("", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX").productElement(value % 10)
-}
-
-// Convert a String that is a Roman Numeral to an Int
-def fromRoman(s: String) : Int = {
-	try {
-		val numerals = Map('I' -> 1, 'V' -> 5, 'X' -> 10, 'L' -> 50, 'C' -> 100, 'D' -> 500, 'M' -> 1000)
-
-		s.toUpperCase.map(numerals).foldLeft((0,0)) {
-		  case ((sum, last), curr) =>  (sum + curr + (if (last < curr) -2*last else 0), curr) }._1
-	} catch {
-		case e:Exception => throw new Exception(s""" "${s}" is not a valid Roman Numeral.""")
-	}
-}
-
-def printCorpus(c:Corpus):Unit = {
-	println("------")
-	for (n <- c.nodes) {
-		// Use either this line:
-		val thisCitation:String = n.urn.toString
-		// or this line:
-		//val thisCitation:String = n.urn.passageComponent.toString
-		val thisText:String = n.text
-		println(s"${thisCitation} :: ${thisText}")
-	}	
-	println("------")
-}
-
 lazy val lib = loadLibrary()
 lazy val tr = lib.textRepository.get
 lazy val popeCorpus = tr.corpus
@@ -82,6 +49,7 @@ def whichBook(u:CtsUrn):String = {
 }
 
 // Getting labels for a URN
+//     note that these depend on the stuff defined above
 val groupName:String = tr.catalog.groupName(u(""))
 val workTitle:String = tr.catalog.workTitle(u(""))
 val versionLabel:String = tr.catalog.versionLabel(u(""))
@@ -121,15 +89,40 @@ def chunkByCitation(c:Corpus, level:Int = 1):Vector[Corpus] = {
 
 // Write out each of 24 books
 
-var htmlTop:String = """<html><body>"""
-var htmlBottom:String = """</body></html>"""
+	var htmlTop:String = s"""<!DOCTYPE html>
+<html>
+<head>
+	<title>${groupName}: ${workTitle}</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+"""
+
+	var htmlBottom:String = """</body></html>"""
 
 val bookChunks:Vector[Corpus] = chunkByCitation(popeCorpus, 1)
 
 for ( bk <- bookChunks.zipWithIndex) {
 	val bkNum:Int = bk._2 + 1
 	val c:Corpus = bk._1
+
+	// create a filename
 	val htmlName:String = s"book${bkNum}.html"
-	val textString:String = c.nodes.mkString("\n")
-	saveString(textString, "html/", htmlName)
+
+	// create a container with all the CitableNodes for this chunk
+	val containerOpen:String = """<div class="text">"""
+	val containerClose:String = """</div>"""
+
+	val passages:Vector[String] = c.nodes.map( n => {
+		s"""<p><span class="cite">${n.urn.passageComponent}</span>${n.text}</p>"""
+	})
+
+	// save this chunk as an html file
+	val htmlString:String = {
+		htmlTop + containerOpen + passages.mkString("\n") + containerClose + htmlBottom
+	}
+
+	saveString(htmlString, "html/", htmlName)
 }
