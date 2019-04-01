@@ -10,14 +10,14 @@ import edu.holycross.shot.seqcomp._
 import edu.furman.classics.citealign._
 import java.util.Calendar
 
-val demoLib:String = "pope_iliad.cex"
+/* Utilities */
 
-def loadLibrary(fp:String = demoLib):CiteLibrary = {
+def loadLibrary(fp:String):CiteLibrary = {
 	val library = CiteLibrary(Source.fromFile(fp).getLines.mkString("\n"),"#",",")
 	library
 }
 
-def loadFile(fp:String = "pope_iliad.txt"):Vector[String] = {
+def loadFile(fp:String):Vector[String] = {
 	Source.fromFile(fp).getLines.toVector
 }
 
@@ -30,16 +30,21 @@ def saveString(s:String, filePath:String = "html/", fileName:String = "temp.txt"
 	pw.close
 }
 
-lazy val lib = loadLibrary()
+/* Project-specific CEX Stuff */
+
+val myCexFile:String = "pope_iliad.cex"
+
+lazy val lib = loadLibrary(myCexFile)
 lazy val tr = lib.textRepository.get
 lazy val popeCorpus = tr.corpus
 
-// I'm lazy
+// Avoid typing lengthy URNs all the time
 def u(passage:String):CtsUrn = {
 	val baseUrl:String = "urn:cts:fufolio:pope.iliad.fu2019:"
 	CtsUrn(s"${baseUrl}${passage}")
 }
 
+// Quick access to the ID of a poetic book
 def whichBook(u:CtsUrn):String = {
 	if (u.passageComponent.size > 0) {
 		u.collapsePassageTo(1).passageComponent
