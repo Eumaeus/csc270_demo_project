@@ -21,6 +21,12 @@ span.cite {
 	font-weight: bold;
 }
 
+.block {
+	display:inline-block;
+	height: 1em;
+	width: 1em;
+	border: 1px solid red;
+}
 
 /*
 .textOnColor {
