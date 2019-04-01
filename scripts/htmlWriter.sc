@@ -10,14 +10,15 @@ import edu.holycross.shot.seqcomp._
 import edu.furman.classics.citealign._
 import java.util.Calendar
 
-val demoLib:String = "pope_iliad.cex"
 
-def loadLibrary(fp:String = demoLib):CiteLibrary = {
+/* Utilities */
+
+def loadLibrary(fp:String):CiteLibrary = {
 	val library = CiteLibrary(Source.fromFile(fp).getLines.mkString("\n"),"#",",")
 	library
 }
 
-def loadFile(fp:String = "pope_iliad.txt"):Vector[String] = {
+def loadFile(fp:String):Vector[String] = {
 	Source.fromFile(fp).getLines.toVector
 }
 
@@ -30,16 +31,21 @@ def saveString(s:String, filePath:String = "html/", fileName:String = "temp.txt"
 	pw.close
 }
 
-lazy val lib = loadLibrary()
+/* Project-specific CEX Stuff */
+
+val myCexFile:String = "pope_iliad.cex"
+
+lazy val lib = loadLibrary(myCexFile)
 lazy val tr = lib.textRepository.get
 lazy val popeCorpus = tr.corpus
 
-// I'm lazy
+// Avoid typing lengthy URNs all the time
 def u(passage:String):CtsUrn = {
 	val baseUrl:String = "urn:cts:fufolio:pope.iliad.fu2019:"
 	CtsUrn(s"${baseUrl}${passage}")
 }
 
+// Quick access to the ID of a poetic book
 def whichBook(u:CtsUrn):String = {
 	if (u.passageComponent.size > 0) {
 		u.collapsePassageTo(1).passageComponent
@@ -55,9 +61,9 @@ val workTitle:String = tr.catalog.workTitle(u(""))
 val versionLabel:String = tr.catalog.versionLabel(u(""))
 
 // Chunked by 25
-val chunk25:Vector[Corpus] = {
+def chunk25(corp:Corpus):Vector[Corpus] = {
 	// make Vectors with 25 passages in each
-	val nodeChunks:Vector[Vector[CitableNode]] = popeCorpus.nodes.sliding(25,25).toVector
+	val nodeChunks:Vector[Vector[CitableNode]] = corp.nodes.sliding(25,25).toVector
 	// turn each of those into a Corpus
 	val corpChunks:Vector[Corpus] = {
 		nodeChunks.map( nodeVec => Corpus(nodeVec) )
@@ -89,58 +95,81 @@ def chunkByCitation(c:Corpus, level:Int = 1):Vector[Corpus] = {
 }
 
 
-// Write out each of 24 books
+/* HTML stuff */
 
-	var htmlTop:String = s"""<!DOCTYPE html>
+var htmlTop:String = s"""<!DOCTYPE html>
 <html>
 <head>
 	<title>${groupName}: ${workTitle}</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<link rel="stylesheet" type="text/css" href="style.css">
+	<style>
+		STYLES_GO_HERE
+	</style>
 </head>
 
 <body>
 """
 
-	var htmlBottom:String = """</body></html>"""
+var htmlBottom:String = """</body></html>"""
+
+/* Now we build the website */
 
 val bookChunks:Vector[Corpus] = chunkByCitation(popeCorpus, 1)
 
-for ( bk <- bookChunks.zipWithIndex) {
-	val bkNum:Int = bk._2 + 1
-	val c:Corpus = bk._1
 
-	// create a filename
-	val htmlName:String = s"book${bkNum}.html"
+def buildSite:Unit = {
+	for ( bk <- bookChunks.zipWithIndex) {
+		val bkNum:Int = bk._2 + 1
+		val c:Corpus = bk._1
 
-	// navigation?
-	val prevLink:String = {
-		bkNum match {
-			case n if (n == 0) => { "" }
-			//case n if (n == (bookChunks.size - 1)) => { "" }
-			case _ => { s"""<a href="book${bkNum - 1}.html">previous</a>""" }
+		// create a filename
+		val htmlName:String = s"book${bkNum}.html"
+
+		/* Navigation */
+		val prevLink:String = {
+			bkNum match {
+				case n if (n == 0) => { "" }
+				//case n if (n == (bookChunks.size - 1)) => { "" }
+				case _ => { s"""<a href="book${bkNum - 1}.html">previous</a>""" }
+			}
 		}
-	}
-	val nextLink:String = {
-		bkNum match {
-			case n if (n == (bookChunks.size - 1)) => { "" }
-			case _ => { s"""<a href="book${bkNum + 1}.html">next</a>""" }
+		val nextLink:String = {
+			bkNum match {
+				case n if (n == (bookChunks.size - 1)) => { "" }
+				case _ => { s"""<a href="book${bkNum + 1}.html">next</a>""" }
+			}
 		}
+		val nav:String = s"""<div class="nav">${prevLink} | ${nextLink}</div>"""
+		/* End Navigation */
+
+		val bookHeader:String = """
+			<div class="bookHeader color1">
+				<p class="textOnColor">Book ${bkNum}</p>
+			</div>	
+		"""
+
+		// create a container with all the CitableNodes for this chunk
+		val containerOpen:String = """<div class="text">"""
+		val containerClose:String = """</div>"""
+
+		val passages:Vector[String] = c.nodes.map( n => {
+			s"""<p><span class="cite">${n.urn.passageComponent}</span>${n.text}</p>"""
+		})
+
+		// save this chunk as an html file
+		val htmlString:String = {
+			htmlTop + 
+			nav + 
+			bookHeader + 
+			containerOpen + 
+			passages.mkString("\n") + 
+			containerClose + 
+			htmlBottom
+		}
+		// Write out to a file
+		saveString(htmlString, "html/", htmlName)
 	}
-	val nav = s"""<div class="nav">${prevLink} | ${nextLink}</div>"""
-
-	// create a container with all the CitableNodes for this chunk
-	val containerOpen:String = """<div class="text">"""
-	val containerClose:String = """</div>"""
-
-	val passages:Vector[String] = c.nodes.map( n => {
-		s"""<p><span class="cite">${n.urn.passageComponent}</span>${n.text}</p>"""
-	})
-
-	// save this chunk as an html file
-	val htmlString:String = {
-		htmlTop + nav + containerOpen + passages.mkString("\n") + containerClose + htmlBottom
-	}
-	// Write out to a file
-	saveString(htmlString, "html/", htmlName)
 }
+
+println(s"\n-------------\nUse 'buildSite' to make HTML pages\n-------------\n")
