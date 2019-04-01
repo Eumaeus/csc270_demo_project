@@ -111,6 +111,22 @@ for ( bk <- bookChunks.zipWithIndex) {
 	// create a filename
 	val htmlName:String = s"book${bkNum}.html"
 
+	// navigation?
+	val prevLink:String = {
+		bkNum match {
+			case n if (n == 0) => { "" }
+			//case n if (n == (bookChunks.size - 1)) => { "" }
+			case _ => { s"""<a href="book${bkNum - 1}.html">previous</a>""" }
+		}
+	}
+	val nextLink:String = {
+		bkNum match {
+			case n if (n == (bookChunks.size - 1)) => { "" }
+			case _ => { s"""<a href="book${bkNum + 1}.html">next</a>""" }
+		}
+	}
+	val nav = s"""<div class="nav">${prevLink} | ${nextLink}</div>"""
+
 	// create a container with all the CitableNodes for this chunk
 	val containerOpen:String = """<div class="text">"""
 	val containerClose:String = """</div>"""
@@ -121,7 +137,7 @@ for ( bk <- bookChunks.zipWithIndex) {
 
 	// save this chunk as an html file
 	val htmlString:String = {
-		htmlTop + containerOpen + passages.mkString("\n") + containerClose + htmlBottom
+		htmlTop + nav + containerOpen + passages.mkString("\n") + containerClose + htmlBottom
 	}
 	// Write out to a file
 	saveString(htmlString, "html/", htmlName)
