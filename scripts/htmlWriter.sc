@@ -120,17 +120,19 @@ val bookChunks:Vector[Corpus] = chunkByCitation(popeCorpus, 1)
 
 def buildSite:Unit = {
 	for ( bk <- bookChunks.zipWithIndex) {
+
+		// grab the chapter's id (in this case, the Book's number)
 		val bkNum:Int = bk._2 + 1
+		// grab the Corpus so it is easy to use
 		val c:Corpus = bk._1
 
-		// create a filename
+		// create a unique filename for each book
 		val htmlName:String = s"book${bkNum}.html"
 
 		/* Navigation */
 		val prevLink:String = {
 			bkNum match {
 				case n if (n == 0) => { "" }
-				//case n if (n == (bookChunks.size - 1)) => { "" }
 				case _ => { s"""<a href="book${bkNum - 1}.html">previous</a>""" }
 			}
 		}
@@ -143,6 +145,7 @@ def buildSite:Unit = {
 		val nav:String = s"""<div class="nav">${prevLink} | ${nextLink}</div>"""
 		/* End Navigation */
 
+		/* Chapter Heading */
 		val bookHeader:String = """
 			<div class="bookHeader color1">
 				<p class="textOnColor">Book ${bkNum}</p>

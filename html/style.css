@@ -22,10 +22,12 @@ span.cite {
 }
 
 
+/*
 .textOnColor {
 	color: white; 
 	mix-blend-mode: exclusion;
 }
+*/
 
 .color1 { 
 	background-color: #e6194b;
