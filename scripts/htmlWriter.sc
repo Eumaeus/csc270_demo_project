@@ -68,19 +68,21 @@ val chunk25:Vector[Corpus] = {
 
 // Chunk-by-citation
 def chunkByCitation(c:Corpus, level:Int = 1):Vector[Corpus] = {
-	// We need this, for this process only…
-	import scala.collection.mutable.LinkedHashMap
 	// we start with a Vector of CitableNodes from our corpus
 	val v1:Vector[CitableNode] = c.nodes
 	// We zipWithIndex to capture their sequence	
 	val v2:Vector[(CitableNode, Int)] = v1.zipWithIndex
+	// We group by top-level URNs
 	val v3:Vector[(CtsUrn, Vector[(CitableNode, Int)])] = {
 		v2.groupBy( _._1.urn.collapsePassageTo(level) ).toVector
 	}
-	val v4 = LinkedHashMap(v3.sortBy(_._2.head._2): _*)
-	val v5 = v4.mapValues(_ map (_._1)).toVector
+	// GroupBy destroys order, but we have the original index for re-sorting
+	val v4:Vector[(CtsUrn, Vector[(CitableNode, Int)])] = v3.sortBy(_._2.head._2)
+	// Get rid of the stuff we don't need
+	val v5:Vector[Vector[(CitableNode, Int)]] = v4.map(_._2)
+	// Map to a Vector of Corpora
 	val corpusVec:Vector[Corpus] = v5.map( v => {
-		val nodes:Vector[CitableNode] = v._2
+		val nodes:Vector[CitableNode] = v.map(_._1)
 		Corpus(nodes)
 	})
 	corpusVec
