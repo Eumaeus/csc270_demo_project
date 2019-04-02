@@ -53,8 +53,8 @@ var htmlTop:String = s"""<!DOCTYPE html>
 var htmlBottom:String = """</body></html>"""
 
 val paras = {
-	for (n <- 1 to 10) yield {
-		s"""<p class="block"> </p>"""
+	for (n <- 1 to 40) yield {
+		s"""<p class="block color${((n-1) % 20) + 1}"> <span class="textOnColor">${n}</span> </p>"""
 	}
 }
 

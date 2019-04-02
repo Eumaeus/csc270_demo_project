@@ -24,16 +24,24 @@ span.cite {
 .block {
 	display:inline-block;
 	height: 1em;
-	width: 1em;
+	width: 2em;
 	border: 1px solid red;
+	text-align: center;
+	padding: 5px;
 }
 
-/*
 .textOnColor {
-	color: white; 
-	mix-blend-mode: exclusion;
+	/* does not work on a medium-gray background! */
+    height: inherit;
+    background: inherit;
+    -webkit-background-clip: text;
+    background-clip: text;
+	color: transparent;
+    text-align: center;
+    filter: invert(1) grayscale(1) contrast(9);
+    display: inline-block;
 }
-*/
+
 
 .color1 { 
 	background-color: #e6194b;
@@ -112,13 +120,17 @@ span.cite {
 }
 
 .color20 { 
-	background-color: #808080;
-}
-
-.color21 { 
 	background-color: #ffffff;
 }
 
 .color22 { 
 	background-color: #000000;
 }
+
+
+/*
+.textOnColor {
+	color: white; 
+	mix-blend-mode: exclusion;
+}
+*/

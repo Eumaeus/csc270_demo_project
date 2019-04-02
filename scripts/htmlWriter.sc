@@ -146,7 +146,7 @@ def buildSite:Unit = {
 		/* End Navigation */
 
 		/* Chapter Heading */
-		val bookHeader:String = """
+		val bookHeader:String = s"""
 			<div class="bookHeader color1">
 				<p class="textOnColor">Book ${bkNum}</p>
 			</div>	
