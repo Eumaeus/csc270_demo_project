@@ -95,6 +95,9 @@ def chunkByCitation(c:Corpus, level:Int = 1):Vector[Corpus] = {
 }
 
 
+
+
+
 /* HTML stuff */
 
 var htmlTop:String = s"""<!DOCTYPE html>
@@ -103,6 +106,7 @@ var htmlTop:String = s"""<!DOCTYPE html>
 	<title>${groupName}: ${workTitle}</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<link rel="stylesheet" type="text/css" href="style.css">
+	<link href="https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,500,500i,600,600i,700,700i,800,800i&amp;subset=cyrillic-ext,greek,greek-ext,latin-ext" rel="stylesheet">
 	<style>
 		STYLES_GO_HERE
 	</style>
@@ -126,19 +130,23 @@ def buildSite:Unit = {
 		// grab the Corpus so it is easy to use
 		val c:Corpus = bk._1
 
+		// chunk again, by stanza
+		val stanzaChunks:Vector[Corpus] = chunkByCitation(c, 2)
+
+
 		// create a unique filename for each book
 		val htmlName:String = s"book${bkNum}.html"
 
 		/* Navigation */
 		val prevLink:String = {
 			bkNum match {
-				case n if (n == 0) => { "" }
+				case n if (n == 1) => { "" }
 				case _ => { s"""<a href="book${bkNum - 1}.html">previous</a>""" }
 			}
 		}
 		val nextLink:String = {
 			bkNum match {
-				case n if (n == (bookChunks.size - 1)) => { "" }
+				case n if (n == (bookChunks.size)) => { "" }
 				case _ => { s"""<a href="book${bkNum + 1}.html">next</a>""" }
 			}
 		}
@@ -147,7 +155,7 @@ def buildSite:Unit = {
 
 		/* Chapter Heading */
 		val bookHeader:String = s"""
-			<div class="bookHeader color1">
+			<div class="bookHeader block color${((bkNum-1) % 20) + 1}">
 				<p class="textOnColor">Book ${bkNum}</p>
 			</div>	
 		"""
@@ -156,17 +164,35 @@ def buildSite:Unit = {
 		val containerOpen:String = """<div class="text">"""
 		val containerClose:String = """</div>"""
 
-		val passages:Vector[String] = c.nodes.map( n => {
-			s"""<p><span class="cite">${n.urn.passageComponent}</span>${n.text}</p>"""
-		})
+		// map stanzaChunks
+		val stanzas:Vector[String] = {
+			stanzaChunks.map( sc => {
+				val open:String = """<div class="stanza">"""
+				val close: String = """</div>"""
+				val passages:Vector[String] = sc.nodes.map( n => {
+					val fixedText:String = {
+						n.text
+							.replaceAll("'","’")
+							.replaceAll("""^"""","“")
+							.replaceAll("""" ""","”")
+							.replaceAll(""""$""","”")
+					}
+					s"""<p><span class="cite">${n.urn.passageComponent}</span>${fixedText}</p>"""
+				})
+				Vector(open) ++ passages ++ Vector(close)
+			}).flatten
+		}
+
+		
 
 		// save this chunk as an html file
 		val htmlString:String = {
 			htmlTop + 
-			nav + 
 			bookHeader + 
 			containerOpen + 
-			passages.mkString("\n") + 
+			nav + 
+			stanzas.mkString("\n") + 
+			nav + 
 			containerClose + 
 			htmlBottom
 		}

@@ -4,29 +4,61 @@ html {
 	margin-top: 2em;
 }
 
-p {
-	font-family: "Helvetica", sans-serif;
+html {
+	 font-family: "EB Garamond",  "LinuxLibertineORegular", "AseaRegular", "Times", serif; 
+	font-size: 18pt;
 }
 
 span.cite {
 	color: maroon;
+	opacity: 0.5;
 	padding-right: 2em;
 	display: inline-block;
 	min-width: 4em;
+	font-size: 85%;
 }
 
+div.stanza {
+	margin-bottom: 3em;
+}
+
+div.nav {
+	float: right;
+}
+
+a {
+	text-decoration: none;
+	color:maroon;
+	padding: 4px;
+	opacity: 0.5;
+}
+
+a:hover {
+	opacity: 1;
+}
+
+a:active {
+	color: navy;
+}
+
+div.text {
+	line-height: 0.5em;
+	padding-bottom: 4em;
+}
+
+
 .bookHeader {
-	padding: 1em;
-	font-size: 125%;
 	font-weight: bold;
+	padding-left: 5em;
+	margin-bottom: 2em;
+	color: maroon;
 }
 
 .block {
 	display:inline-block;
-	height: 1em;
-	width: 2em;
-	border: 1px solid red;
+	width: 100%;
 	text-align: center;
+	opacity: 0.5;
 	padding: 5px;
 }
 
@@ -41,7 +73,6 @@ span.cite {
     filter: invert(1) grayscale(1) contrast(9);
     display: inline-block;
 }
-
 
 .color1 { 
 	background-color: #e6194b;
