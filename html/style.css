@@ -9,6 +9,10 @@ html {
 	font-size: 18pt;
 }
 
+div {
+	border: 1px solid yellow;
+}
+
 span.cite {
 	color: maroon;
 	opacity: 0.5;
@@ -58,7 +62,6 @@ div.text {
 	display:inline-block;
 	width: 100%;
 	text-align: center;
-	opacity: 0.5;
 	padding: 5px;
 }
 

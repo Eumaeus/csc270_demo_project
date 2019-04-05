@@ -13,7 +13,7 @@ import java.util.Calendar
 
 /* Stop Words */
 
-val stopWords:Vector[String] = Vector("ourselves", "hers", "between", "yourself", "but", "again", "there", "about", "once", "during", "out", "very", "having", "with", "they", "own", "an", "be", "some", "for", "do", "its", "yours", "such", "into", "of", "most", "itself", "other", "off", "is", "s", "am", "or", "who", "as", "from", "him", "each", "the", "themselves", "until", "below", "are", "we", "these", "your", "his", "through", "don", "nor", "me", "were", "her", "more", "himself", "this", "down", "should", "our", "their", "while", "above", "both", "up", "to", "ours", "had", "she", "all", "no", "when", "at", "any", "before", "them", "same", "and", "been", "have", "in", "will", "on", "does", "yourselves", "then", "that", "because", "what", "over", "why", "so", "can", "did", "not", "now", "under", "he", "you", "herself", "has", "just", "where", "too", "only", "myself", "which", "those", "i", "after", "few", "whom", "t", "being", "if", "theirs", "my", "against", "a", "by", "doing", "it", "how", "further", "was", "here", "than")
+val stopWords:Vector[String] = Vector("ourselves", "hers", "between", "yourself", "but", "again", "there", "about", "once", "during", "out", "very", "having", "with", "they", "own", "an", "be", "some", "for", "do", "its", "yours", "such", "into", "of", "most", "itself", "other", "off", "is", "s", "am", "or", "who", "as", "from", "him", "each", "the", "themselves", "until", "below", "are", "we", "these", "your", "his", "through", "don", "nor", "me", "were", "her", "more", "himself", "this", "down", "should", "our", "their", "while", "above", "both", "up", "to", "ours", "had", "she", "all", "no", "when", "at", "any", "before", "them", "same", "and", "been", "have", "in", "will", "on", "does", "yourselves", "then", "that", "because", "what", "over", "why", "so", "can", "did", "not", "now", "under", "he", "you", "herself", "has", "just", "where", "too", "only", "myself", "which", "those", "i", "after", "few", "whom", "t", "being", "if", "theirs", "my", "against", "a", "by", "doing", "it", "how", "further", "was", "here", "than", "thou", "o'er", "thus", "thy", "yet", "thee", "shall")
 	
 /* Utilities */
 
@@ -34,7 +34,7 @@ def loadFile(fp:String):Vector[String] = {
 	Source.fromFile(fp).getLines.toVector
 }
 
-def saveString(s:String, filePath:String = "html/", fileName:String = "temp.txt"):Unit = {
+def saveString(s:String, filePath:String = "", fileName:String = ""):Unit = {
 	val pw = new PrintWriter(new File(filePath + fileName))
 	for (line <- s.lines){
 		pw.append(line)
@@ -63,8 +63,16 @@ val wordHisto:Vector[WordHisto] = {
 		.mkString(" ")
 		.split(splitters).toVector
 		.filter(_.size > 0)
+		.filter( w => stopWords.contains(w.toLowerCase) == false )
 		.groupBy(w => w).toVector
 		.map( tup => WordHisto(tup._1, tup._2.size))
 		.sortBy(_.count)
 		.reverse
 } 
+
+def whString(i:Int):String = {
+	wordHisto.take(i).map(wh => {
+		s"${wh.count}  ${wh.word}"
+	}).mkString("\n")
+
+}
