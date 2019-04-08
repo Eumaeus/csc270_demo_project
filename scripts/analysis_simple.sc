@@ -55,6 +55,9 @@ lazy val popeCorpus = tr.corpus
 
 popeCorpus.ngramHisto(4,8) // 4-grams occuring more than 8 times
 
+val achillesUrns:Vector[CtsUrn] = popeCorpus.find("Achilles").nodes.map(_.urn)
+val patroclusUrns:Vector[CtsUrn] = popeCorpus.find("Patroclus").nodes.map(_.urn)
+
 /* Make an "analytical exemplar" of your text */
 /*
 val newCorpus:Corpus = {
