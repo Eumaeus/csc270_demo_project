@@ -6,11 +6,11 @@ html {
 
 html {
 	 font-family: "EB Garamond",  "LinuxLibertineORegular", "AseaRegular", "Times", serif; 
-	font-size: 18pt;
+	font-size: 12pt;
 }
 
 div {
-	border: 1px solid yellow;
+
 }
 
 span.cite {
@@ -22,12 +22,22 @@ span.cite {
 	font-size: 85%;
 }
 
+
+
 div.stanza {
-	margin-bottom: 3em;
+	margin-bottom: 2em;
+}
+
+div.text_column {
+	float:left;
+	margin-right: 2em;
 }
 
 div.nav {
-	float: right;
+	/*clear:both;*/
+	/*margin: 1em 0 2em 0;*/
+	/*width: 100%;*/
+	/*display: block;*/
 }
 
 a {

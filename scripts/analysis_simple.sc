@@ -43,7 +43,7 @@ def saveString(s:String, filePath:String = "", fileName:String = ""):Unit = {
 	pw.close
 }
 
-val splitters:String = """[\[\])(:·⸁.,·;;   "?·!–—⸂⸃]"""
+val splitters:String = """[\[\])(:·⸁.,·;; "?·!–—⸂⸃]"""
 
 /* Project-specific CEX Stuff */
 
@@ -53,26 +53,42 @@ lazy val lib = loadLibrary(myCexFile)
 lazy val tr = lib.textRepository.get
 lazy val popeCorpus = tr.corpus
 
-/* Get a word-histogram */
+popeCorpus.ngramHisto(4,8) // 4-grams occuring more than 8 times
 
-case class WordHisto(word:String, count:Int)
-
-val wordHisto:Vector[WordHisto] = {
-	popeCorpus.nodes
-		.map(_.text)
-		.mkString(" ")
-		.split(splitters).toVector
-		.filter(_.size > 0)
-		.filter( w => stopWords.contains(w.toLowerCase) == false )
-		.groupBy(w => w).toVector
-		.map( tup => WordHisto(tup._1, tup._2.size))
-		.sortBy(_.count)
-		.reverse
-} 
-
-def whString(i:Int):String = {
-	wordHisto.take(i).map(wh => {
-		s"${wh.count}  ${wh.word}"
-	}).mkString("\n")
-
+/* Make an "analytical exemplar" of your text */
+/*
+val newCorpus:Corpus = {
+	val nodeVector:Vector[CitableNode] = popeCorpus.nodes.map(n => {
+		val newUrn:CtsUrn = n.urn.addExemplar("analysis")
+		val cleanText:String = n.text.replaceAll(splitters," ").replaceAll(" +"," ").toLowerCase
+		CitableNode(newUrn,cleanText)	
+	})
+	Corpus(nodeVector)
 }
+
+newCorpus.ngramHisto(4,8) // 4-grams occuring more than 8 times
+*/
+
+/* Make another */
+/*
+val analysisCorpus:Corpus = {
+	val nodeVector:Vector[CitableNode] = newCorpus.nodes.map(n => {
+		val newUrn:CtsUrn = n.urn.dropExemplar.addExemplar("topics")
+		val textVec:Vector[String] = n.text.split(splitters).toVector
+		val removedStopWords:String = {
+			textVec.filter( t => {
+				stopWords.contains(t) == false
+			}).mkString(" ")
+		}
+		CitableNode(newUrn,removedStopWords)	
+	})
+	Corpus(nodeVector)
+}
+*/
+
+
+
+
+
+
+
