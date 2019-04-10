@@ -55,14 +55,13 @@ lazy val popeCorpus = tr.corpus
 
 popeCorpus.ngramHisto(4,8) // 4-grams occuring more than 8 times
 
-val achillesUrns:Vector[CtsUrn] = popeCorpus.find("Achilles").nodes.map(_.urn)
-val patroclusUrns:Vector[CtsUrn] = popeCorpus.find("Patroclus").nodes.map(_.urn)
+//val achillesUrns:Vector[CtsUrn] = popeCorpus.find("Achilles").nodes.map(_.urn)
+//val patroclusUrns:Vector[CtsUrn] = popeCorpus.find("Patroclus").nodes.map(_.urn)
 
 /* Make an "analytical exemplar" of your text */
-/*
 val newCorpus:Corpus = {
 	val nodeVector:Vector[CitableNode] = popeCorpus.nodes.map(n => {
-		val newUrn:CtsUrn = n.urn.addExemplar("analysis")
+		val newUrn:CtsUrn = n.urn.addExemplar("new")
 		val cleanText:String = n.text.replaceAll(splitters," ").replaceAll(" +"," ").toLowerCase
 		CitableNode(newUrn,cleanText)	
 	})
@@ -70,13 +69,11 @@ val newCorpus:Corpus = {
 }
 
 newCorpus.ngramHisto(4,8) // 4-grams occuring more than 8 times
-*/
 
 /* Make another */
-/*
 val analysisCorpus:Corpus = {
 	val nodeVector:Vector[CitableNode] = newCorpus.nodes.map(n => {
-		val newUrn:CtsUrn = n.urn.dropExemplar.addExemplar("topics")
+		val newUrn:CtsUrn = n.urn.dropExemplar.addExemplar("analysis")
 		val textVec:Vector[String] = n.text.split(splitters).toVector
 		val removedStopWords:String = {
 			textVec.filter( t => {
@@ -87,8 +84,8 @@ val analysisCorpus:Corpus = {
 	})
 	Corpus(nodeVector)
 }
-*/
 
+analysisCorpus.ngramHisto(4,8) // 4-grams occuring more than 8 times
 
 
 

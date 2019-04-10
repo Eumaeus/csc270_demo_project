@@ -34,10 +34,10 @@ div.text_column {
 }
 
 div.nav {
-	/*clear:both;*/
-	/*margin: 1em 0 2em 0;*/
-	/*width: 100%;*/
-	/*display: block;*/
+	clear:both;
+	margin: 1em 0 2em 0;
+	width: 100%;
+	display: block;
 }
 
 a {
