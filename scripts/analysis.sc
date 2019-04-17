@@ -44,6 +44,7 @@ def saveString(s:String, filePath:String = "", fileName:String = ""):Unit = {
 }
 
 val splitters:String = """[\[\])(:·⸁.,·;;   "?·!–—⸂⸃]"""
+val sentencePunc:String = """[.;?!]"""
 
 /* Project-specific CEX Stuff */
 
