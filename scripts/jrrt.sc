@@ -47,7 +47,7 @@ def saveString(s:String, filePath:String = "csv/", fileName:String = "readingSco
 val splitters:String = """[\[\])(:·⸁.,·;';   "?·!–—⸂⸃]"""
 
 // For dividing strings into sentences
-val sentencePunc:String = """[.;?!]"""
+val sentencePunc:String = """[.;?:!]"""
 
 // A dumb stab at syllabifying English
 def countSyllables(s:String):(String, Int) = {
@@ -111,8 +111,8 @@ val tr = loadLibrary().textRepository.get
 val corp = tr.corpus
 
 // Options for how to chunk the text for analysis
-val chunkSize:Int = 200
-val stepSize:Int = 1 
+val chunkSize:Int = 10
+val stepSize:Int = 10
 
 // Divide the text into citable chunks
 val chunks:Vector[(CtsUrn,String)] = {
