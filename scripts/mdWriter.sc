@@ -136,7 +136,7 @@ def buildSite:Unit = {
 		// map stanzaChunks
 		val stanzas:Vector[String] = {
 			stanzaChunks.map( sc => {
-				val open:String = "\n"
+				val open:String = "\n&nbsp;\n"
 				val close: String = ""
 				val passages:Vector[String] = sc.nodes.map( n => {
 					val fixedText:String = {
@@ -146,7 +146,7 @@ def buildSite:Unit = {
 							.replaceAll("""" ""","”")
 							.replaceAll(""""$""","”")
 					}
-					s"""**${n.urn.passageComponent}**\t${fixedText}"""
+					s"""**${n.urn.passageComponent}**\t${fixedText}\n"""
 				})
 				Vector(open) ++ passages ++ Vector(close)
 			}).flatten
