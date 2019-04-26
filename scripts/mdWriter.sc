@@ -98,24 +98,15 @@ def chunkByCitation(c:Corpus, level:Int = 1):Vector[Corpus] = {
 
 
 
-/* HTML stuff */
+/* MD stuff */
 
-var htmlTop:String = s"""<!DOCTYPE html>
-<html>
-<head>
-	<title>${groupName}: ${workTitle}</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-	<link rel="stylesheet" type="text/css" href="style.css">
-	<link href="https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,500,500i,600,600i,700,700i,800,800i&amp;subset=cyrillic-ext,greek,greek-ext,latin-ext" rel="stylesheet">
-	<style>
-		STYLES_GO_HERE
-	</style>
-</head>
+var mdTop:String = s"""## ${groupName}
 
-<body>
+# ${workTitle}
+
 """
 
-var htmlBottom:String = """</body></html>"""
+var mdBottom:String = "\n"
 
 /* Now we build the website */
 
@@ -133,42 +124,20 @@ def buildSite:Unit = {
 		// chunk again, by stanza
 		val stanzaChunks:Vector[Corpus] = chunkByCitation(c, 2)
 
-
 		// create a unique filename for each book
-		val htmlName:String = s"book${bkNum}.html"
+		val htmlName:String = s"book${bkNum}.md"
 
-		/* Navigation */
-		val prevLink:String = {
-			bkNum match {
-				case n if (n == 1) => { "" }
-				case _ => { s"""<a href="book${bkNum - 1}.html">previous</a>""" }
-			}
-		}
-		val nextLink:String = {
-			bkNum match {
-				case n if (n == (bookChunks.size)) => { "" }
-				case _ => { s"""<a href="book${bkNum + 1}.html">next</a>""" }
-			}
-		}
-		val nav:String = s"""<div class="nav">${prevLink} | ${nextLink}</div>"""
-		/* End Navigation */
 
 		/* Chapter Heading */
-		val bookHeader:String = s"""
-			<div class="bookHeader block color${((bkNum-1) % 20) + 1}">
-				<p class="textOnColor">Book ${bkNum}</p>
-			</div>	
-		"""
+		val bookHeader:String = s"\n### Book ${bkNum}"
 
 		// create a container with all the CitableNodes for this chunk
-		val containerOpen:String = """<div class="text">"""
-		val containerClose:String = """</div>"""
 
 		// map stanzaChunks
 		val stanzas:Vector[String] = {
 			stanzaChunks.map( sc => {
-				val open:String = """<div class="stanza">"""
-				val close: String = """</div>"""
+				val open:String = "\n"
+				val close: String = ""
 				val passages:Vector[String] = sc.nodes.map( n => {
 					val fixedText:String = {
 						n.text
@@ -177,7 +146,7 @@ def buildSite:Unit = {
 							.replaceAll("""" ""","”")
 							.replaceAll(""""$""","”")
 					}
-					s"""<p><span class="cite">${n.urn.passageComponent}</span>${fixedText}</p>"""
+					s"""**${n.urn.passageComponent}**\t${fixedText}"""
 				})
 				Vector(open) ++ passages ++ Vector(close)
 			}).flatten
@@ -186,19 +155,15 @@ def buildSite:Unit = {
 		
 
 		// save this chunk as an html file
-		val htmlString:String = {
-			htmlTop + 
+		val mdString:String = {
+			mdTop + 
 			bookHeader + 
-			containerOpen + 
-			nav + 
 			stanzas.mkString("\n") + 
-			nav + 
-			containerClose + 
-			htmlBottom
+			mdBottom
 		}
 		// Write out to a file
-		saveString(htmlString, "html/", htmlName)
+		saveString(mdString, "md/", htmlName)
 	}
 }
 
-println(s"\n-------------\nUse 'buildSite' to make HTML pages\n-------------\n")
+println(s"\n-------------\nUse 'buildSite' to make Markdown pages\n-------------\n")
